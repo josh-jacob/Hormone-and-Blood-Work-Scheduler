@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Hormone & Blood Work Scheduler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,6 +23,7 @@
             max-width: 400px;
             width: 100%;
             text-align: center;
+            overflow: hidden; /* Ensure content doesn't overflow on small screens */
         }
         h1 {
             color: #007bff;
@@ -41,10 +43,12 @@
             border: 1px solid #ced4da;
             border-radius: 4px;
             width: 100%;
+            box-sizing: border-box; /* Ensure padding and border are included in width */
         }
         .button-group {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap; /* Wrap buttons to the next line on small screens */
         }
         .button-group button {
             background-color: #007bff;
@@ -54,7 +58,8 @@
             border-radius: 4px;
             cursor: pointer;
             flex-grow: 1;
-            margin: 0 5px;
+            margin: 5px;
+            max-width: 100%; /* Ensure buttons take full width on small screens */
         }
         .button-group button.selected {
             background-color: #0056b3;
@@ -69,6 +74,8 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            width: 100%;
+            box-sizing: border-box; /* Ensure padding and border are included in width */
         }
         input[type="submit"]:hover {
             background-color: #218838;
@@ -78,6 +85,7 @@
             padding: 10px;
             border-radius: 4px;
             background-color: #e9ecef;
+            text-align: left; /* Ensure result text aligns properly on small screens */
         }
     </style>
 </head>
