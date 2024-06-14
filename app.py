@@ -30,15 +30,6 @@ def calculate():
             blood_work_end_date = blood_work_date + timedelta(days=3)
 
             date_format = "%B %d, %Y"
-
-            return jsonify({
-                'next_period': next_period_date.strftime(date_format),
-                'estrogen_end_date': estrogen_end_date.strftime(date_format),
-                'prog_start_date': prog_start_date.strftime(date_format),
-                'prog_end_date': prog_end_date.strftime(date_format),
-                'blood_work_date': blood_work_date.strftime(date_format),
-                'blood_work_end_date': blood_work_end_date.strftime(date_format),
-            })
         
         else:
             cycle_length = int(cycle_length)
@@ -59,13 +50,14 @@ def calculate():
             
             date_format = "%B %d, %Y"
             
-            return jsonify({
-                'estrogen_end_date': estrogen_end_date.strftime(date_format),
-                'prog_start_date': prog_start_date.strftime(date_format),
-                'prog_end_date': prog_end_date.strftime(date_format),
-                'blood_work_date': blood_work_date.strftime(date_format),
-                'blood_work_end_date': blood_work_end_date.strftime(date_format),
-            })
+        return jsonify({
+            'next_period': next_period_date.strftime(date_format),
+            'estrogen_end_date': estrogen_end_date.strftime(date_format),
+            'prog_start_date': prog_start_date.strftime(date_format),
+            'prog_end_date': prog_end_date.strftime(date_format),
+            'blood_work_date': blood_work_date.strftime(date_format),
+            'blood_work_end_date': blood_work_end_date.strftime(date_format),
+        })
     except ValueError:
         return jsonify({'error': 'Invalid input values. Please enter valid numbers.'}), 400
 
