@@ -20,10 +20,9 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            max-width: 400px;
+            max-width: 600px; /* Increase the max-width */
             width: 100%;
             text-align: center;
-            overflow: hidden; /* Ensure content doesn't overflow on small screens */
         }
         h1 {
             color: #007bff;
@@ -48,7 +47,7 @@
         .button-group {
             display: flex;
             justify-content: space-between;
-            flex-wrap: wrap; /* Wrap buttons to the next line on small screens */
+            flex-wrap: wrap;
         }
         .button-group button {
             background-color: #007bff;
@@ -87,6 +86,31 @@
             background-color: #e9ecef;
             text-align: left; /* Ensure result text aligns properly on small screens */
         }
+        .blood-work-question {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .blood-work-question-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .blood-work-question button {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 35px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .blood-work-question button.selected {
+            background-color: #0056b3;
+        }
+        .blood-work-question button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +126,14 @@
                 <button type="button" onclick="setCycleLength('irregular')">Irregular</button>
             </div>
             <input type="hidden" id="cycle_length" name="cycle_length" required>
+            <div class="blood-work-question">
+                <p>Are you due for blood works?</p>
+                <div class="blood-work-question-buttons">
+                    <button type="button" onclick="setBloodWork(true)">Yes</button>
+                    <button type="button" onclick="setBloodWork(false)">No</button>
+                </div>
+            </div>
+            <input type="hidden" id="blood_work_due" name="blood_work_due" value="false" required>
             <input type="submit" value="Calculate">
         </form>
         <div id="result" class="result"></div>
@@ -116,6 +148,17 @@
                 if (button.innerText.includes(value)) {
                     button.classList.add('selected');
                 } else if (value === 'irregular' && button.innerText.includes('Irregular')) {
+                    button.classList.add('selected');
+                }
+            });
+        }
+
+        function setBloodWork(value) {
+            document.getElementById('blood_work_due').value = value;
+            var buttons = document.querySelectorAll('.blood-work-question button');
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+                if ((value && button.innerText.includes('Yes')) || (!value && button.innerText.includes('No'))) {
                     button.classList.add('selected');
                 }
             });
@@ -140,11 +183,16 @@
                     resultDiv.innerHTML = '<h2>' + data.error + '</h2>';
                 } else {
                     var outputHtml = `
-                        <h2>Take Estrogen: <br>${data.next_period} - ${data.estrogen_end_date}</h2>
+                        <h2>Take Estrogen: <br>${data.estrogen_start_date} - ${data.estrogen_end_date}</h2>
                         <h2>Take Progesterone: <br>${data.prog_start_date} - ${data.prog_end_date}</h2>
-                        <h2>Go for Blood Works: <br>${data.blood_work_date} - ${data.blood_work_end_date}</h2>
                     `;
+                    if (formData.get('blood_work_due') === 'true') {
+                        outputHtml += `
+                            <h2>Go for Blood Works: <br>${data.blood_work_date} - ${data.blood_work_end_date} or <br>${data.blood_work_date_2} - ${data.blood_work_end_date_2}</h2>
+                        `;
+                    }
                     resultDiv.innerHTML = outputHtml;
+                    resultDiv.scrollIntoView({ behavior: 'smooth' });
                 }
             })
             .catch(error => {
