@@ -15,48 +15,49 @@ def calculate():
     
         last_period_date = datetime.strptime(last_period, '%Y-%m-%d')
 
-        if cycle_length == 'irregular':
+        if cycle_length == 'irregular': # cycle length is irregular
             today = datetime.today()
-            next_period_date = last_period_date
+            estrogen_start_date = last_period_date
 
-            while next_period_date <= today:
-                next_period_date += timedelta(days=28)
-            
-                
-            estrogen_end_date = next_period_date + timedelta(days=21)
-            prog_start_date = next_period_date + timedelta(days=15)
-            prog_end_date = prog_start_date + timedelta(days=13)
-            blood_work_date = next_period_date + timedelta(days=19)
-            blood_work_end_date = blood_work_date + timedelta(days=3)
+            while estrogen_start_date <= today: # default to 28 days and calculate about when cycle should start
+                estrogen_start_date += timedelta(days=28)
 
             date_format = "%B %d, %Y"
         
         else:
             cycle_length = int(cycle_length)
-            next_period_date = last_period_date + timedelta(days=cycle_length)
+            estrogen_start_date = last_period_date + timedelta(days=cycle_length)
 
        
-            if cycle_length == 28:
-                prog_start_date = next_period_date + timedelta(days=15)
-                estrogen_end_date = next_period_date + timedelta(days=21)
-                
-            else:
-                prog_start_date = next_period_date + timedelta(days=17)
-                estrogen_end_date = next_period_date + timedelta(days=21)
+        if cycle_length == 30:
+            prog_start_date = estrogen_start_date + timedelta(days=17-1) # progesterone start on day 17
+            estrogen_end_date = estrogen_start_date + timedelta(days=25-1) # estrogen end on day 25
             
-            prog_end_date = prog_start_date + timedelta(days=13)
-            blood_work_date = next_period_date + timedelta(days=19)
-            blood_work_end_date = blood_work_date + timedelta(days=3)
+        else:
+            prog_start_date = estrogen_start_date + timedelta(days=15-1) # progestrone start on day 15
+            estrogen_end_date = estrogen_start_date + timedelta(days=21-1) # estrogen end on day 21
+
+        
+        second_cycle = estrogen_end_date + timedelta(days = 28)
+
+        prog_end_date = prog_start_date + timedelta(days=13) # progesterone end 13 days after start
+        blood_work_date = estrogen_start_date + timedelta(days=28+19)
+        blood_work_end_date = blood_work_date + timedelta(days=3-1)
+        
+        blood_work_date_2 = second_cycle + timedelta(days=19)
+        blood_work_end_date_2 = blood_work_date_2 + timedelta(days=2)
             
-            date_format = "%B %d, %Y"
+        date_format = "%B %d, %Y"
             
         return jsonify({
-            'next_period': next_period_date.strftime(date_format),
+            'estrogen_start_date': estrogen_start_date.strftime(date_format),
             'estrogen_end_date': estrogen_end_date.strftime(date_format),
             'prog_start_date': prog_start_date.strftime(date_format),
             'prog_end_date': prog_end_date.strftime(date_format),
             'blood_work_date': blood_work_date.strftime(date_format),
             'blood_work_end_date': blood_work_end_date.strftime(date_format),
+            'blood_work_date_2': blood_work_date_2.strftime(date_format),
+            'blood_work_end_date_2': blood_work_end_date_2.strftime(date_format)
         })
     except ValueError:
         return jsonify({'error': 'Invalid input values. Please enter valid numbers.'}), 400
