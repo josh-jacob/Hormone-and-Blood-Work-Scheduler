@@ -43,14 +43,15 @@ def calculate():
             current_prog_start_date = current_estrogen_start_date+timedelta(days=14)
             current_estrogen_end_date = current_estrogen_start_date+timedelta(days=20)
         
-        second_cycle = estrogen_end_date + timedelta(days = 28)
+ 
 
         prog_end_date = prog_start_date + timedelta(days=13) # progesterone end 13 days after start
         current_prog_end_date = current_prog_start_date+timedelta(days=13)
-        blood_work_date = estrogen_start_date + timedelta(days=28+19)
+        
+        blood_work_date = last_period_date + timedelta(days=19-1)
         blood_work_end_date = blood_work_date + timedelta(days=3-1)
         
-        blood_work_date_2 = second_cycle + timedelta(days=19)
+        blood_work_date_2 = estrogen_start_date + timedelta(days=19-1)
         blood_work_end_date_2 = blood_work_date_2 + timedelta(days=2)
             
         date_format = "%B %d, %Y"
