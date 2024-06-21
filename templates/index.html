@@ -242,8 +242,8 @@
                         bloodWorkResultDiv.classList.remove('hide');
                         bloodWorkDatesDiv.innerHTML = `
                             ${formData.get('blood_work_due') === 'true' ? `
-                                <p>First: ${data.blood_work_date} - ${data.blood_work_end_date}</p>
-                                <p>Second: ${data.blood_work_date_2} - ${data.blood_work_end_date_2}</p>
+                                <p>${data.blood_work_date} - ${data.blood_work_end_date}</p>
+                                <p>${data.blood_work_date_2} - ${data.blood_work_end_date_2}</p>
                             ` : '<p>Not due</p>'}
                         `;
                     } else {
