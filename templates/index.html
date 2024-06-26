@@ -129,6 +129,9 @@
             gap: 10px;
             margin-top: 20px;
         }
+        .checkbox-group label {
+            font-weight: normal; /* Remove bold font weight */
+        }
         .hormone-result.hide {
             display: none; /* Hide by default */
         }
@@ -158,7 +161,7 @@
             </div>
             <input type="hidden" id="cycle_length" name="cycle_length" required>
             <div class="blood-work-question">
-                <p>Are you due for blood works?</p>
+                <p><strong>Are you due for blood works?</strong></p>
                 <div class="blood-work-question-buttons">
                     <button type="button" onclick="setBloodWork(true)">Yes</button>
                     <button type="button" onclick="setBloodWork(false)">No</button>
