@@ -15,6 +15,8 @@ def calculate():
     
         last_period_date = datetime.strptime(last_period, '%Y-%m-%d')
 
+        
+        
         if cycle_length == 'irregular': # cycle length is irregular
             today = datetime.today()
             estrogen_start_date = last_period_date
@@ -30,6 +32,8 @@ def calculate():
             cycle_length = int(cycle_length)
             estrogen_start_date = last_period_date + timedelta(days=cycle_length)
         
+     
+     
         current_estrogen_start_date = last_period_date
         if cycle_length == 30:
             prog_start_date = estrogen_start_date + timedelta(days=17-1) # progesterone start on day 17
@@ -48,10 +52,12 @@ def calculate():
         prog_end_date = prog_start_date + timedelta(days=13) # progesterone end 13 days after start
         current_prog_end_date = current_prog_start_date+timedelta(days=13)
         
-        blood_work_date = last_period_date + timedelta(days=19-1)
+        
+        dayDif = cycle_length-28
+        blood_work_date = last_period_date + timedelta(days=19-1+dayDif)
         blood_work_end_date = blood_work_date + timedelta(days=3-1)
         
-        blood_work_date_2 = estrogen_start_date + timedelta(days=19-1)
+        blood_work_date_2 = estrogen_start_date + timedelta(days=19-1+dayDif)
         blood_work_end_date_2 = blood_work_date_2 + timedelta(days=2)
             
         date_format = "%B %d, %Y"
