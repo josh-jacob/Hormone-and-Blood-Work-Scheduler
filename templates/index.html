@@ -156,10 +156,10 @@
             <input type="date" id="last_period" name="last_period" required>
 
             <label for="cycle_length">Cycle Length (in days):</label>
-            <input type="number" id="cycle_length_input" name="cycle_length" min="1" required>
+            <input type="number" id="cycle_length_input" name="cycle_length_input" min="1">
 
             <div class="button-group">
-                <button type="button" onclick="setCycleLength('irregular')">Irregular</button>
+                <button type="button" id="irregularButton" onclick="setCycleLength('irregular')">Irregular</button>
             </div>
 
             <input type="hidden" id="cycle_length" name="cycle_length" required>
@@ -200,38 +200,43 @@
     </div>
 
     <script>
-function setCycleLength(value) {
-    document.getElementById('cycle_length').value = value;
+        function setCycleLength(value) {
+            // Set the value of the hidden input for cycle_length
+            document.getElementById('cycle_length').value = value;
+            
+            var buttons = document.querySelectorAll('.button-group button');
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+            });
 
-    var buttons = document.querySelectorAll('.button-group button');
-    buttons.forEach(button => {
-        button.classList.remove('selected');
-        if (button.innerText.includes('Irregular')) {
-            button.classList.add('selected');
+            // Mark the 'Irregular' button as selected
+            if (value === 'irregular') {
+                document.getElementById('irregularButton').classList.add('selected');
+            }
+
+            // Hide or show the input field for cycle length based on the selection
+            var cycleInput = document.getElementById('cycle_length_input');
+            if (value === 'irregular') {
+                cycleInput.value = ''; // Clear the input field value
+                cycleInput.style.display = 'none'; // Hide the input field
+            } else {
+                cycleInput.style.display = 'block'; // Show the input field
+            }
         }
-    });
 
-    // Hide the input field for cycle length if "Irregular" is selected
-    var cycleInput = document.getElementById('cycle_length_input');
-    if (value === 'irregular') {
-        cycleInput.style.display = 'none'; // Hide the input field
-        cycleInput.value = ''; // Clear the input field value
-    }
-}
+        // This ensures that when the user types in the cycle length, "Irregular" is deselected
+        document.getElementById('cycle_length_input').addEventListener('input', function () {
+            var inputValue = this.value;
 
-document.getElementById('cycle_length_input').addEventListener('input', function () {
-    // Set the cycle length hidden input value when user types a number
-    document.getElementById('cycle_length').value = this.value;
+            // If the user inputs a value, update the hidden cycle_length field with this number
+            document.getElementById('cycle_length').value = inputValue;
 
-    var buttons = document.querySelectorAll('.button-group button');
-    buttons.forEach(button => {
-        button.classList.remove('selected'); // Deselect "Irregular" when typing a number
-    });
-
-    // Show the input field again if user starts typing a number
-    document.getElementById('cycle_length_input').style.display = 'block';
-});
-
+            // Deselect the "Irregular" button when a number is entered
+            var buttons = document.querySelectorAll('.button-group button');
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+            });
+        });
 
         function setBloodWork(value) {
             document.getElementById('blood_work_due').value = value;
