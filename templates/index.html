@@ -200,26 +200,38 @@
     </div>
 
     <script>
-        function setCycleLength(value) {
-            document.getElementById('cycle_length').value = value;
-            var buttons = document.querySelectorAll('.button-group button');
-            buttons.forEach(button => {
-                button.classList.remove('selected');
-                if (button.innerText.includes('Irregular')) {
-                    button.classList.add('selected');
-                }
-            });
-            document.getElementById('cycle_length_input').value = ''; // Clear the input when "Irregular" is selected
-        }
+function setCycleLength(value) {
+    document.getElementById('cycle_length').value = value;
 
-        document.getElementById('cycle_length_input').addEventListener('input', function() {
-            // Set the cycle length hidden input value when user types a number
-            document.getElementById('cycle_length').value = this.value;
-            var buttons = document.querySelectorAll('.button-group button');
-            buttons.forEach(button => {
-                button.classList.remove('selected'); // Deselect "Irregular" when typing a number
-            });
-        });
+    var buttons = document.querySelectorAll('.button-group button');
+    buttons.forEach(button => {
+        button.classList.remove('selected');
+        if (button.innerText.includes('Irregular')) {
+            button.classList.add('selected');
+        }
+    });
+
+    // Hide the input field for cycle length if "Irregular" is selected
+    var cycleInput = document.getElementById('cycle_length_input');
+    if (value === 'irregular') {
+        cycleInput.style.display = 'none'; // Hide the input field
+        cycleInput.value = ''; // Clear the input field value
+    }
+}
+
+document.getElementById('cycle_length_input').addEventListener('input', function () {
+    // Set the cycle length hidden input value when user types a number
+    document.getElementById('cycle_length').value = this.value;
+
+    var buttons = document.querySelectorAll('.button-group button');
+    buttons.forEach(button => {
+        button.classList.remove('selected'); // Deselect "Irregular" when typing a number
+    });
+
+    // Show the input field again if user starts typing a number
+    document.getElementById('cycle_length_input').style.display = 'block';
+});
+
 
         function setBloodWork(value) {
             document.getElementById('blood_work_due').value = value;
