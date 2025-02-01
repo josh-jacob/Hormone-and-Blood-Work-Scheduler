@@ -149,7 +149,7 @@
     </style>
 </head>
 <body>
-      <div class="container">
+    <div class="container">
         <h1>Hormone & Blood Work Scheduler</h1>
         <form id="period-form">
             <label for="last_period">When was the first day of your last period?:</label>
@@ -175,10 +175,7 @@
             <div class="checkbox-group">
                 <label><input type="checkbox" id="only_blood_work" name="only_blood_work"> Show only blood work dates</label>
             </div>
-
-            <!-- Separate buttons for each calculation -->
-            <input type="button" value="Calculate Hormone Levels" onclick="calculateHormones()">
-            <input type="button" value="Calculate Blood Work" onclick="calculateBloodWork()">
+            <input type="submit" value="Calculate">
         </form>
         <div id="result" class="result">
             <div id="hormone-result" class="hormone-result hide">
@@ -195,98 +192,119 @@
                     </div>
                 </div>
             </div>
-            <div id="blood-work-result" class="blood-work-result hide">
-                <h2>Blood Works</h2>
-                <div id="blood-work-dates"></div>
-            </div>
+        </div>
+        <div id="blood-work-result" class="blood-work-result hide">
+            <h2>Blood Works</h2>
+            <div id="blood-work-dates"></div>
         </div>
     </div>
 
     <script>
-        // Set cycle length and handle button state
         function setCycleLength(value) {
-            var cycleInput = document.getElementById('cycle_length_input');
-            var hiddenInput = document.getElementById('cycle_length');
+            // Set the value of the hidden input for cycle_length
+            document.getElementById('cycle_length').value = value;
+            
             var buttons = document.querySelectorAll('.button-group button');
-            buttons.forEach(button => button.classList.remove('selected'));
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+            });
 
+            // Mark the 'Irregular' button as selected
             if (value === 'irregular') {
-                hiddenInput.value = '';
-                cycleInput.style.display = 'none';
-            } else {
-                hiddenInput.value = cycleInput.value;
-                cycleInput.style.display = 'block';
+                document.getElementById('irregularButton').classList.add('selected');
             }
 
-            document.getElementById('irregularButton').classList.toggle('selected', value === 'irregular');
+            // Hide or show the input field for cycle length based on the selection
+            var cycleInput = document.getElementById('cycle_length_input');
+            if (value === 'irregular') {
+                cycleInput.value = ''; // Clear the input field value
+                cycleInput.style.display = 'none'; // Hide the input field
+            } else {
+                cycleInput.style.display = 'block'; // Show the input field
+            }
         }
 
-        // Set blood work status and handle button state
+        // This ensures that when the user types in the cycle length, "Irregular" is deselected
+        document.getElementById('cycle_length_input').addEventListener('input', function () {
+            var inputValue = this.value;
+
+            // If the user inputs a value, update the hidden cycle_length field with this number
+            document.getElementById('cycle_length').value = inputValue;
+
+            // Deselect the "Irregular" button when a number is entered
+            var buttons = document.querySelectorAll('.button-group button');
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+            });
+        });
+
         function setBloodWork(value) {
-            var hiddenInput = document.getElementById('blood_work_due');
+            document.getElementById('blood_work_due').value = value;
             var buttons = document.querySelectorAll('.blood-work-question button');
             buttons.forEach(button => {
                 button.classList.remove('selected');
-                if ((value && button.textContent === 'Yes') || (!value && button.textContent === 'No')) {
+                if ((value && button.innerText.includes('Yes')) || (!value && button.innerText.includes('No'))) {
                     button.classList.add('selected');
                 }
             });
-            hiddenInput.value = value;
         }
 
-        // Calculate hormone levels via API call
-        function calculateHormones() {
-            var formData = new FormData(document.getElementById('period-form'));
-            fetch('/calculate_hormones', {
+        document.getElementById('period-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            calculateCycle(formData);
+        });
+
+        function calculateCycle(formData) {
+            var hormoneResultDiv = document.getElementById('hormone-result');
+            var bloodWorkResultDiv = document.getElementById('blood-work-result');
+            var bloodWorkDatesDiv = document.getElementById('blood-work-dates');
+            var onlyBloodWork = document.getElementById('only_blood_work').checked;
+
+            fetch('/calculate', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
-            .then(data => displayHormoneResults(data))
-            .catch(error => console.error('Error:', error));
-        }
+            .then(data => {
+                if (data.error) {
+                    hormoneResultDiv.innerHTML = '<h2>' + data.error + '</h2>';
+                } else {
+                    if (onlyBloodWork) {
+                        hormoneResultDiv.classList.add('hide');
+                        bloodWorkResultDiv.classList.remove('hide');
+                        bloodWorkDatesDiv.innerHTML = `
+                            ${formData.get('blood_work_due') === 'true' ? `
+                                <p>${data.blood_work_date} - ${data.blood_work_end_date}</p>
+                                <p>${data.blood_work_date_2} - ${data.blood_work_end_date_2}</p>
+                            ` : '<p>Not due</p>'}
+                        `;
+                    } else {
+                        hormoneResultDiv.classList.remove('hide');
+                        bloodWorkResultDiv.classList.remove('hide');
+                        document.getElementById('current_estrogen_start_date').innerText = data.current_estrogen_start_date;
+                        document.getElementById('current_estrogen_end_date').innerText = data.current_estrogen_end_date;
+                        document.getElementById('estrogen_start_date').innerText = data.estrogen_start_date;
+                        document.getElementById('estrogen_end_date').innerText = data.estrogen_end_date;
+                        document.getElementById('current_prog_start_date').innerText = data.current_prog_start_date;
+                        document.getElementById('current_prog_end_date').innerText = data.current_prog_end_date;
+                        document.getElementById('prog_start_date').innerText = data.prog_start_date;
+                        document.getElementById('prog_end_date').innerText = data.prog_end_date;
 
-        // Calculate blood work dates via API call
-        function calculateBloodWork() {
-            var formData = new FormData(document.getElementById('period-form'));
-            fetch('/calculate_blood_work', {
-                method: 'POST',
-                body: formData
+                        bloodWorkDatesDiv.innerHTML = `
+                            ${formData.get('blood_work_due') === 'true' ? `
+                                <p>First: ${data.blood_work_date} - ${data.blood_work_end_date}</p>
+                                <p>Second: ${data.blood_work_date_2} - ${data.blood_work_end_date_2}</p>
+                            ` : '<p>Not due</p>'}
+                        `;
+                    }
+                }
+                bloodWorkResultDiv.scrollIntoView({ behavior: 'smooth' });
             })
-            .then(response => response.json())
-            .then(data => displayBloodWorkResults(data))
-            .catch(error => console.error('Error:', error));
-        }
-
-        // Display hormone levels
-        function displayHormoneResults(data) {
-            if (data.error) {
-                console.log(data.error);
-            } else {
-                var hormoneResultDiv = document.getElementById('hormone-result');
-                hormoneResultDiv.classList.remove('hide');
-                document.getElementById('current_estrogen_start_date').innerText = data.current_estrogen_start_date;
-                document.getElementById('current_estrogen_end_date').innerText = data.current_estrogen_end_date;
-                document.getElementById('estrogen_start_date').innerText = data.estrogen_start_date;
-                document.getElementById('estrogen_end_date').innerText = data.estrogen_end_date;
-                document.getElementById('current_prog_start_date').innerText = data.current_prog_start_date;
-                document.getElementById('current_prog_end_date').innerText = data.current_prog_end_date;
-                document.getElementById('prog_start_date').innerText = data.prog_start_date;
-                document.getElementById('prog_end_date').innerText = data.prog_end_date;
-            }
-        }
-
-        // Display blood work dates
-        function displayBloodWorkResults(data) {
-            if (data.error) {
-                console.log(data.error);
-            } else {
-                var bloodWorkResultDiv = document.getElementById('blood-work-result');
-                bloodWorkResultDiv.classList.remove('hide');
-                document.getElementById('blood-work-dates').innerHTML =
-                    `<p>First: ${data.blood_work_date} - ${data.blood_work_end_date}</p>
-                     <p>Second: ${data.blood_work_date_2} - ${data.blood_work_end_date_2}</p>`;
-            }
+            .catch(error => {
+                console.error('Error:', error);
+                hormoneResultDiv.innerHTML = '<h2>An error occurred. Please try again later.</h2>';
+            });
         }
     </script>
 </body>
