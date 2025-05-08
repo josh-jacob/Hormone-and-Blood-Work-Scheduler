@@ -48,8 +48,55 @@
         }
         .button-group {
             display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .cycle-length-input {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-help {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .reset-button {
+            background-color: #f8f9fa;
+            color: #343a40;
+            padding: 10px 20px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .reset-button:hover {
+            background-color: #e9ecef;
+        }
+        .submit-button {
+            background-color: #eecbe9;
+            color: #343a40;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #b999c8;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 10px;
         }
         .button-group button {
             background-color: #eecbe9;
@@ -82,9 +129,9 @@
             background-color: #b999c8;
         }
         .result {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 8px;
             background-color: #e9ecef;
             text-align: left;
         }
@@ -139,6 +186,28 @@
         .blood-work-result.hide {
             display: none; /* Hide by default */
         }
+        .blood-work-result {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .blood-work-dates-container {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 4px;
+        }
+        .blood-work-date {
+            margin: 5px 0;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
         .blood-work-result h2 {
             font-size: 1.2em;
             color: #007bff;
@@ -152,14 +221,21 @@
     <div class="container">
         <h1>Hormone & Blood Work Scheduler</h1>
         <form id="period-form">
-            <label for="last_period">When was the first day of your last period?:</label>
-            <input type="date" id="last_period" name="last_period" required>
+            <div class="form-group">
+                <label for="last_period">When was the first day of your last period?:</label>
+                <input type="date" id="last_period" name="last_period" required>
+                <small class="form-help">Select the first day of your last menstrual period</small>
+            </div>
 
-            <label for="cycle_length">Cycle Length (in days):</label>
-            <input type="number" id="cycle_length_input" name="cycle_length_input" min="1">
-
-            <div class="button-group">
-                <button type="button" id="irregularButton" onclick="setCycleLength('irregular')">Irregular</button>
+            <div class="form-group">
+                <label for="cycle_length">Cycle Length (in days):</label>
+                <div class="cycle-length-input">
+                    <input type="number" id="cycle_length_input" name="cycle_length_input" min="1">
+                    <div class="button-group">
+                        <button type="button" id="irregularButton" onclick="setCycleLength('irregular')">Irregular</button>
+                    </div>
+                </div>
+                <small class="form-help">Enter your cycle length or select "Irregular"</small>
             </div>
 
             <input type="hidden" id="cycle_length" name="cycle_length" required>
@@ -172,11 +248,22 @@
                 </div>
             </div>
             <input type="hidden" id="blood_work_due" name="blood_work_due" value="false" required>
+            
             <div class="checkbox-group">
                 <label><input type="checkbox" id="only_blood_work" name="only_blood_work"> Show only blood work dates</label>
             </div>
-            <input type="submit" value="Calculate">
+
+            <div class="form-buttons">
+                <button type="button" id="reset-button" class="reset-button">Reset</button>
+                <input type="submit" value="Calculate" class="submit-button">
+            </div>
         </form>
+        <div id="blood-work-result" class="blood-work-result hide">
+            <h2>Blood Work Dates</h2>
+            <div class="blood-work-dates-container">
+                <div id="blood-work-dates"></div>
+            </div>
+        </div>
         <div id="result" class="result">
             <div id="hormone-result" class="hormone-result hide">
                 <div class="result-columns">
@@ -192,10 +279,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div id="blood-work-result" class="blood-work-result hide">
-            <h2>Blood Works</h2>
-            <div id="blood-work-dates"></div>
         </div>
     </div>
 
@@ -227,6 +310,11 @@
         // This ensures that when the user types in the cycle length, "Irregular" is deselected
         document.getElementById('cycle_length_input').addEventListener('input', function () {
             var inputValue = this.value;
+            var errorDiv = document.getElementById('cycle-error');
+            
+            if (errorDiv) {
+                errorDiv.remove();
+            }
 
             // If the user inputs a value, update the hidden cycle_length field with this number
             document.getElementById('cycle_length').value = inputValue;
@@ -251,6 +339,22 @@
 
         document.getElementById('period-form').addEventListener('submit', function(event) {
             event.preventDefault();
+            
+            // Validate inputs
+            var lastPeriod = document.getElementById('last_period').value;
+            var cycleLength = document.getElementById('cycle_length').value;
+            var bloodWorkDue = document.getElementById('blood_work_due').value;
+            
+            if (!lastPeriod) {
+                alert('Please select your last period date');
+                return;
+            }
+            
+            if (cycleLength === '') {
+                alert('Please enter a cycle length or select "Irregular"');
+                return;
+            }
+
             var formData = new FormData(this);
             calculateCycle(formData);
         });
@@ -306,6 +410,36 @@
                 hormoneResultDiv.innerHTML = '<h2>An error occurred. Please try again later.</h2>';
             });
         }
+
+        // Add reset button functionality
+        document.getElementById('reset-button').addEventListener('click', function() {
+            document.getElementById('period-form').reset();
+            document.getElementById('cycle_length_input').style.display = 'block';
+            document.getElementById('cycle_length').value = '';
+            document.getElementById('blood_work_due').value = 'false';
+            document.getElementById('only_blood_work').checked = false;
+            
+            // Remove any error messages
+            var errorDiv = document.getElementById('cycle-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            
+            // Reset button states
+            var buttons = document.querySelectorAll('.button-group button');
+            buttons.forEach(button => {
+                button.classList.remove('selected');
+            });
+            
+            var bloodWorkButtons = document.querySelectorAll('.blood-work-question button');
+            bloodWorkButtons.forEach(button => {
+                button.classList.remove('selected');
+            });
+            
+            // Hide results
+            document.getElementById('hormone-result').classList.add('hide');
+            document.getElementById('blood-work-result').classList.add('hide');
+        });
     </script>
 </body>
 </html>
