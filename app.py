@@ -30,7 +30,7 @@ def calculate():
         estrogen_start_date = last_period_date + timedelta(days=cycle_length)
         
         # Third cycle (cycle 3)
-        third_estrogen_start_date = last_period_date + timedelta(days=cycle_length * 2)
+        third_estrogen_start_date = last_period_date + timedelta(days=cycle_length + cycle_length)
         
         # Calculate hormone end dates and progesterone dates for each cycle
         if cycle_length == 30:
