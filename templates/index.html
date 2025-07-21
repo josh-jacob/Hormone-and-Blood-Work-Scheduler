@@ -28,12 +28,37 @@
             margin-top: 20px;
         }
 
+        .corner-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .corner-logo:hover {
+            transform: scale(1.1);
+        }
+
+        .corner-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
         h1 {
             color: #4a5568;
             font-weight: 700;
             margin-bottom: 30px;
             font-size: 2.2em;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
         .form-group {
@@ -255,7 +280,7 @@
 
         .blood-work-label {
             font-weight: 600;
-            color:	rgb(255,182,193)
+            color: #FFB6C1;
             margin-bottom: 5px;
         }
 
@@ -296,6 +321,13 @@
             .container {
                 padding: 20px;
                 margin: 10px;
+            }
+
+            .corner-logo {
+                width: 60px;
+                height: 60px;
+                top: 15px;
+                left: 15px;
             }
 
             .hormone-grid {
@@ -342,6 +374,14 @@
     </style>
 </head>
 <body>
+    <!-- Corner Logo -->
+    <div class="corner-logo">
+        <a href="https://www.scienceandhumans.com/" target="_blank">
+            <img src="{{ url_for('static', filename='images/s and h logo.jpg') }}" alt="Science & Humans logo">
+        </a>
+
+    </div>
+
     <div class="container">
         <h1>🩺 Hormone & Blood Work Scheduler</h1>
         
@@ -516,14 +556,14 @@
 
         document.getElementById('cycle_length_input').addEventListener('input', function() {
             const value = this.value;
-            if (value >= 20 && value <= 45) 
+            if (value >= 20 && value <= 45) {
                 document.getElementById('cycle_length').value = value;
                 // Clear button selections when manually entering
                 document.querySelectorAll('.button-group button').forEach(button => {
                     button.classList.remove('selected');
                 });
                 autoCalculate();
-            
+            }
         });
 
         function setBloodWork(value) {
