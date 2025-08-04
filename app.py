@@ -7,6 +7,18 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+
+def generate_gcal_url(title, start_date, end_date):
+    return (
+        "https://www.google.com/calendar/render"
+        "?action=TEMPLATE"
+        f"&text={title}"
+        f"&dates={start_date.strftime('%Y%m%d')}/{(end_date + timedelta(days=1)).strftime('%Y%m%d')}"
+        "&details=Hormone or Blood Work Schedule"
+        "&sf=true&output=xml"
+    )
+
+
 @app.route('/calculate', methods=['POST'])
 def calculate():
     try:
@@ -106,10 +118,31 @@ def calculate():
             'blood_work_date_2': blood_work_date_2.strftime(date_format),
             'blood_work_end_date_2': blood_work_end_date_2.strftime(date_format),
             'blood_work_date_3': blood_work_date_3.strftime(date_format),
-            'blood_work_end_date_3': blood_work_end_date_3.strftime(date_format)
+            'blood_work_end_date_3': blood_work_end_date_3.strftime(date_format),
+            # Example: First blood work window
+            'gcal_blood_work_1': generate_gcal_url(
+                "First Blood Work Window",
+                blood_work_date,
+                blood_work_end_date
+            ),
+            
+            'gcal_blood_work_2': generate_gcal_url(
+                "Second Blood Work Window",
+                blood_work_date_2,
+                blood_work_end_date_2
+            ),
+            
+            'gcal_blood_work_3': generate_gcal_url(
+                "Third Blood Work Window",
+                blood_work_date_3,
+                blood_work_end_date_3
+            ),
+
         })
     except ValueError:
         return jsonify({'error': 'Invalid input values. Please enter valid numbers.'}), 400
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
