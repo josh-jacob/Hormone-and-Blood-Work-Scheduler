@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -262,6 +263,7 @@
         .cycle-dates {
             color: #718096;
             font-weight: 500;
+            margin-bottom: 10px;
         }
 
         .blood-work-dates {
@@ -298,16 +300,17 @@
             gap: 8px;
             background: rgba(236,204,235,1.000);
             color: #4a5568;
-            padding: 10px 18px;
+            padding: 8px 16px;
             border: none;
             border-radius: 12px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(236,204,235,0.4);
             position: relative;
             overflow: hidden;
+            margin-top: 8px;
         }
 
         .calendar-button::before {
@@ -495,6 +498,10 @@
                                     <div class="cycle-dates">
                                         <span id="current_estrogen_start_date_inline"></span> - <span id="current_estrogen_end_date_inline"></span>
                                     </div>
+                                    <a id="gcal_current_estrogen_btn" href="#" target="_blank" class="calendar-button">
+                                        <span class="calendar-icon">📅</span>
+                                        Add Estrogen to Calendar
+                                    </a>
                                 </div>
                             </div>
                             <div class="hormone-card">
@@ -504,6 +511,10 @@
                                     <div class="cycle-dates">
                                         <span id="current_prog_start_date_inline"></span> - <span id="current_prog_end_date_inline"></span>
                                     </div>
+                                    <a id="gcal_current_progesterone_btn" href="#" target="_blank" class="calendar-button">
+                                        <span class="calendar-icon">📅</span>
+                                        Add Progesterone to Calendar
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -520,6 +531,10 @@
                                     <div class="cycle-dates">
                                         <span id="estrogen_start_date_inline"></span> - <span id="estrogen_end_date_inline"></span>
                                     </div>
+                                    <a id="gcal_next_estrogen_btn" href="#" target="_blank" class="calendar-button">
+                                        <span class="calendar-icon">📅</span>
+                                        Add Estrogen to Calendar
+                                    </a>
                                 </div>
                             </div>
                             <div class="hormone-card">
@@ -529,6 +544,10 @@
                                     <div class="cycle-dates">
                                         <span id="prog_start_date_inline"></span> - <span id="prog_end_date_inline"></span>
                                     </div>
+                                    <a id="gcal_next_progesterone_btn" href="#" target="_blank" class="calendar-button">
+                                        <span class="calendar-icon">📅</span>
+                                        Add Progesterone to Calendar
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -545,6 +564,10 @@
                                     <div class="cycle-dates">
                                         <span id="third_estrogen_start_date_inline"></span> - <span id="third_estrogen_end_date_inline"></span>
                                     </div>
+                                    <a id="gcal_third_estrogen_btn" href="#" target="_blank" class="calendar-button">
+                                        <span class="calendar-icon">📅</span>
+                                        Add Estrogen to Calendar
+                                    </a>
                                 </div>
                             </div>
                             <div class="hormone-card">
@@ -554,6 +577,10 @@
                                     <div class="cycle-dates">
                                         <span id="third_prog_start_date_inline"></span> - <span id="third_prog_end_date_inline"></span>
                                     </div>
+                                    <a id="gcal_third_progesterone_btn" href="#" target="_blank" class="calendar-button">
+                                        <span class="calendar-icon">📅</span>
+                                        Add Progesterone to Calendar
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -614,14 +641,14 @@
 
         document.getElementById('cycle_length_input').addEventListener('input', function() {
             const value = this.value;
-            if (value >= 20 && value <= 45) {
-                document.getElementById('cycle_length').value = value;
-                // Clear button selections when manually entering
-                document.querySelectorAll('.button-group button').forEach(button => {
-                    button.classList.remove('selected');
-                });
-                autoCalculate();
-            }
+        
+            document.getElementById('cycle_length').value = value;
+            // Clear button selections when manually entering
+            document.querySelectorAll('.button-group button').forEach(button => {
+                button.classList.remove('selected');
+            });
+            autoCalculate();
+            
         });
 
         function setBloodWork(value) {
@@ -748,23 +775,29 @@
 
 
         function updateHormoneResults(data) {
-            // Current cycle
+            // Dates
             document.getElementById('current_estrogen_start_date_inline').textContent = data.current_estrogen_start_date;
             document.getElementById('current_estrogen_end_date_inline').textContent = data.current_estrogen_end_date;
             document.getElementById('current_prog_start_date_inline').textContent = data.current_prog_start_date;
             document.getElementById('current_prog_end_date_inline').textContent = data.current_prog_end_date;
-            
-            // Next cycle
+
             document.getElementById('estrogen_start_date_inline').textContent = data.estrogen_start_date;
             document.getElementById('estrogen_end_date_inline').textContent = data.estrogen_end_date;
             document.getElementById('prog_start_date_inline').textContent = data.prog_start_date;
             document.getElementById('prog_end_date_inline').textContent = data.prog_end_date;
-            
-            // Third cycle - now properly populated with real data
+
             document.getElementById('third_estrogen_start_date_inline').textContent = data.third_estrogen_start_date;
             document.getElementById('third_estrogen_end_date_inline').textContent = data.third_estrogen_end_date;
             document.getElementById('third_prog_start_date_inline').textContent = data.third_prog_start_date;
             document.getElementById('third_prog_end_date_inline').textContent = data.third_prog_end_date;
+
+    
+            document.getElementById('gcal_current_estrogen_btn').href = data.gcal_current_estrogen;
+            document.getElementById('gcal_current_progesterone_btn').href = data.gcal_current_progesterone;
+            document.getElementById('gcal_next_estrogen_btn').href = data.gcal_next_estrogen;
+            document.getElementById('gcal_next_progesterone_btn').href = data.gcal_next_progesterone;
+            document.getElementById('gcal_third_estrogen_btn').href = data.gcal_third_estrogen;
+            document.getElementById('gcal_third_progesterone_btn').href = data.gcal_third_progesterone;
         }
 
         document.getElementById('reset-button').addEventListener('click', function() {
