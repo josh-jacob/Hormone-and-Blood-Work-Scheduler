@@ -119,29 +119,63 @@ def calculate():
             'blood_work_end_date_2': blood_work_end_date_2.strftime(date_format),
             'blood_work_date_3': blood_work_date_3.strftime(date_format),
             'blood_work_end_date_3': blood_work_end_date_3.strftime(date_format),
-            # Example: First blood work window
+            
+            # Blood work Google Calendar URLs
             'gcal_blood_work_1': generate_gcal_url(
                 "First Blood Work Window",
                 blood_work_date,
                 blood_work_end_date
             ),
-            
             'gcal_blood_work_2': generate_gcal_url(
                 "Second Blood Work Window",
                 blood_work_date_2,
                 blood_work_end_date_2
             ),
-            
             'gcal_blood_work_3': generate_gcal_url(
                 "Third Blood Work Window",
                 blood_work_date_3,
                 blood_work_end_date_3
             ),
 
+            # Current cycle hormone Google Calendar URLs
+            'gcal_current_estrogen': generate_gcal_url(
+                "Current Cycle - Estrogen Phase",
+                current_estrogen_start_date,
+                current_estrogen_end_date
+            ),
+            'gcal_current_progesterone': generate_gcal_url(
+                "Current Cycle - Progesterone Phase",
+                current_prog_start_date,
+                current_prog_end_date
+            ),
+
+            # Next cycle hormone Google Calendar URLs
+            'gcal_next_estrogen': generate_gcal_url(
+                "Next Cycle - Estrogen Phase",
+                estrogen_start_date,
+                estrogen_end_date
+            ),
+            'gcal_next_progesterone': generate_gcal_url(
+                "Next Cycle - Progesterone Phase",
+                prog_start_date,
+                prog_end_date
+            ),
+
+            # Third cycle hormone Google Calendar URLs
+            'gcal_third_estrogen': generate_gcal_url(
+                "Third Cycle - Estrogen Phase",
+                third_estrogen_start_date,
+                third_estrogen_end_date
+            ),
+            'gcal_third_progesterone': generate_gcal_url(
+                "Third Cycle - Progesterone Phase",
+                third_prog_start_date,
+                third_prog_end_date
+            ),
+
         })
     except ValueError:
         return jsonify({'error': 'Invalid input values. Please enter valid numbers.'}), 400
-
 
 
 if __name__ == '__main__':
