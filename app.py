@@ -12,104 +12,101 @@ def calculate():
     try:
         last_period = request.form['last_period']
         cycle_length = request.form['cycle_length']
-    
-        last_period_date = datetime.strptime(last_period, '%Y-%m-%d')
-        # Set default cycle length for "Irregular"
+
+        # Handle irregular
         if cycle_length == 'irregular':
-            cycle_length = 28  # Default cycle length if irregular
+            cycle_length = 28
         else:
-            cycle_length = int(cycle_length)
-        
+            try:
+                cycle_length = int(cycle_length)
+            except ValueError:
+                return jsonify({'error': 'Cycle length must be a number.'}), 400
+
+            if cycle_length > 50:
+                return jsonify({'error': 'Cycle length out of range.'}), 400
+
+        last_period_date = datetime.strptime(last_period, '%Y-%m-%d')
         today = datetime.today()
-        
-        # Calculate hormone phases for 3 cycles
-        # Current cycle (cycle 1)
-        current_estrogen_start_date = last_period_date
-        
-        # Next cycle (cycle 2)
-        estrogen_start_date = last_period_date + timedelta(days=cycle_length)
-        
-        # Third cycle (cycle 3)
-        third_estrogen_start_date = last_period_date + timedelta(days=cycle_length + cycle_length)
-        
-        # Calculate hormone end dates and progesterone dates for each cycle
-        if cycle_length == 30:
-            # Current cycle - corrected timing
-            current_prog_start_date = current_estrogen_start_date + timedelta(days=17-1)  # Day 17
-            current_estrogen_end_date = current_estrogen_start_date + timedelta(days=25-1)  # Day 25
-            current_prog_end_date = current_prog_start_date + timedelta(days=13)
-            
-            # Second cycle
-            prog_start_date = estrogen_start_date + timedelta(days=17-1)  # Day 17
-            estrogen_end_date = estrogen_start_date + timedelta(days=25-1)  # Day 25
-            prog_end_date = prog_start_date + timedelta(days=13)
-            
-            # Third cycle
-            third_prog_start_date = third_estrogen_start_date + timedelta(days=17-1)  # Day 17
-            third_estrogen_end_date = third_estrogen_start_date + timedelta(days=25-1)  # Day 25
-            third_prog_end_date = third_prog_start_date + timedelta(days=13)
-        else:
-            # Current cycle - corrected timing
-            current_prog_start_date = current_estrogen_start_date + timedelta(days=15-1)  # Day 15
-            current_estrogen_end_date = current_estrogen_start_date + timedelta(days=21-1)  # Day 21
-            current_prog_end_date = current_prog_start_date + timedelta(days=13)
-            
-            # Second cycle
-            prog_start_date = estrogen_start_date + timedelta(days=15-1)  # Day 15
-            estrogen_end_date = estrogen_start_date + timedelta(days=21-1)  # Day 21
-            prog_end_date = prog_start_date + timedelta(days=13)
-            
-            # Third cycle
-            third_prog_start_date = third_estrogen_start_date + timedelta(days=15-1)  # Day 15
-            third_estrogen_end_date = third_estrogen_start_date + timedelta(days=21-1)  # Day 21
-            third_prog_end_date = third_prog_start_date + timedelta(days=13)
-        
-        # Blood work dates for 3 cycles - corrected calculation
+
+        # How many cycles have elapsed since last period
+        elapsed_cycles = (today - last_period_date).days // cycle_length
+
+        # Anchor the "current" cycle to where we are now
+        current_cycle_start = last_period_date + timedelta(days=elapsed_cycles * cycle_length)
+        next_cycle_start = current_cycle_start + timedelta(days=cycle_length)
+        third_cycle_start = current_cycle_start + timedelta(days=2 * cycle_length)
+
+        # === Hormone phases ===
+        # Estrogen: Day 1–25
+        # Progesterone: Day 15–29 (15 days total)
+
+        # Current cycle
+        current_estrogen_start = current_cycle_start
+        current_estrogen_end   = current_cycle_start + timedelta(days=24)
+        current_prog_start     = current_cycle_start + timedelta(days=14)
+        current_prog_end       = current_cycle_start + timedelta(days=28)
+
+        # Next cycle
+        estrogen_start = next_cycle_start
+        estrogen_end   = next_cycle_start + timedelta(days=24)
+        prog_start     = next_cycle_start + timedelta(days=14)
+        prog_end       = next_cycle_start + timedelta(days=28)
+
+        # Third cycle
+        third_estrogen_start = third_cycle_start
+        third_estrogen_end   = third_cycle_start + timedelta(days=24)
+        third_prog_start     = third_cycle_start + timedelta(days=14)
+        third_prog_end       = third_cycle_start + timedelta(days=28)
+
+        # === Blood work dates ===
         day_dif = cycle_length - 28
-        
-        # First cycle blood work
-        blood_work_date = last_period_date + timedelta(days=19-1 + day_dif)  # Day 19 + adjustment
-        blood_work_end_date = blood_work_date + timedelta(days=3-1)  # 3-day window
-        
-        # Second cycle blood work
-        blood_work_date_2 = estrogen_start_date + timedelta(days=19-1 + day_dif)
-        blood_work_end_date_2 = blood_work_date_2 + timedelta(days=3-1)
-        
-        # Third cycle blood work
-        blood_work_date_3 = third_estrogen_start_date + timedelta(days=19-1 + day_dif)
-        blood_work_end_date_3 = blood_work_date_3 + timedelta(days=3-1)
-        
-        date_format = "%B %d, %Y"
-        
+
+        blood_work_date    = current_cycle_start + timedelta(days=18 + day_dif)
+        blood_work_end     = blood_work_date + timedelta(days=2)
+
+        blood_work_date_2  = next_cycle_start + timedelta(days=18 + day_dif)
+        blood_work_end_2   = blood_work_date_2 + timedelta(days=2)
+
+        blood_work_date_3  = third_cycle_start + timedelta(days=18 + day_dif)
+        blood_work_end_3   = blood_work_date_3 + timedelta(days=2)
+
+        # Format output
+        fmt = "%B %d, %Y"
+
         return jsonify({
             # Current cycle
-            'current_estrogen_start_date': current_estrogen_start_date.strftime(date_format),
-            'current_estrogen_end_date': current_estrogen_end_date.strftime(date_format),
-            'current_prog_start_date': current_prog_start_date.strftime(date_format),
-            'current_prog_end_date': current_prog_end_date.strftime(date_format),
-            
-            # Second cycle
-            'estrogen_start_date': estrogen_start_date.strftime(date_format),
-            'estrogen_end_date': estrogen_end_date.strftime(date_format),
-            'prog_start_date': prog_start_date.strftime(date_format),
-            'prog_end_date': prog_end_date.strftime(date_format),
-            
+            'current_estrogen_start_date': current_estrogen_start.strftime(fmt),
+            'current_estrogen_end_date': current_estrogen_end.strftime(fmt),
+            'current_prog_start_date': current_prog_start.strftime(fmt),
+            'current_prog_end_date': current_prog_end.strftime(fmt),
+
+            # Next cycle
+            'estrogen_start_date': estrogen_start.strftime(fmt),
+            'estrogen_end_date': estrogen_end.strftime(fmt),
+            'prog_start_date': prog_start.strftime(fmt),
+            'prog_end_date': prog_end.strftime(fmt),
+
             # Third cycle
-            'third_estrogen_start_date': third_estrogen_start_date.strftime(date_format),
-            'third_estrogen_end_date': third_estrogen_end_date.strftime(date_format),
-            'third_prog_start_date': third_prog_start_date.strftime(date_format),
-            'third_prog_end_date': third_prog_end_date.strftime(date_format),
-            
-            # Blood work dates
-            'blood_work_date': blood_work_date.strftime(date_format),
-            'blood_work_end_date': blood_work_end_date.strftime(date_format),
-            'blood_work_date_2': blood_work_date_2.strftime(date_format),
-            'blood_work_end_date_2': blood_work_end_date_2.strftime(date_format),
-            'blood_work_date_3': blood_work_date_3.strftime(date_format),
-            'blood_work_end_date_3': blood_work_end_date_3.strftime(date_format)
+            'third_estrogen_start_date': third_estrogen_start.strftime(fmt),
+            'third_estrogen_end_date': third_estrogen_end.strftime(fmt),
+            'third_prog_start_date': third_prog_start.strftime(fmt),
+            'third_prog_end_date': third_prog_end.strftime(fmt),
+
+            # Blood work
+            'blood_work_date': blood_work_date.strftime(fmt),
+            'blood_work_end_date': blood_work_end.strftime(fmt),
+            'blood_work_date_2': blood_work_date_2.strftime(fmt),
+            'blood_work_end_date_2': blood_work_end_2.strftime(fmt),
+            'blood_work_date_3': blood_work_date_3.strftime(fmt),
+            'blood_work_end_date_3': blood_work_end_3.strftime(fmt),
+
+            # Extra: where are we now
+            'day_in_cycle': (today - current_cycle_start).days + 1
         })
-    except ValueError:
-        return jsonify({'error': 'Invalid input values. Please enter valid numbers.'}), 400
+
+    except Exception as e:
+        return jsonify({'error': f'Invalid input values: {str(e)}'}), 400
+
 
 if __name__ == '__main__':
     app.run(debug=True)
