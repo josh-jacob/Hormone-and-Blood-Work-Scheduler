@@ -13,7 +13,6 @@ def calculate():
         last_period = request.form['last_period']
         cycle_length = request.form['cycle_length']
 
-        # Handle irregular
         if cycle_length == 'irregular':
             cycle_length = 28
         else:
@@ -31,7 +30,7 @@ def calculate():
         # How many cycles have elapsed since last period
         elapsed_cycles = (today - last_period_date).days // cycle_length
 
-        # Anchor the "current" cycle to where we are now
+        # make current cycle to today
         current_cycle_start = last_period_date + timedelta(days=elapsed_cycles * cycle_length)
         next_cycle_start = current_cycle_start + timedelta(days=cycle_length)
         third_cycle_start = current_cycle_start + timedelta(days=2 * cycle_length)
@@ -42,33 +41,33 @@ def calculate():
 
         # Current cycle
         current_estrogen_start = current_cycle_start
-        current_estrogen_end   = current_cycle_start + timedelta(days=24)
-        current_prog_start     = current_cycle_start + timedelta(days=14)
-        current_prog_end       = current_cycle_start + timedelta(days=28)
+        current_estrogen_end = current_cycle_start + timedelta(days=24)
+        current_prog_start = current_cycle_start + timedelta(days=13)
+        current_prog_end = current_cycle_start + timedelta(days=27)
 
         # Next cycle
         estrogen_start = next_cycle_start
-        estrogen_end   = next_cycle_start + timedelta(days=24)
-        prog_start     = next_cycle_start + timedelta(days=14)
-        prog_end       = next_cycle_start + timedelta(days=28)
+        estrogen_end = next_cycle_start + timedelta(days=24)
+        prog_start = next_cycle_start + timedelta(days=13)
+        prog_end = next_cycle_start + timedelta(days=27)
 
         # Third cycle
         third_estrogen_start = third_cycle_start
-        third_estrogen_end   = third_cycle_start + timedelta(days=24)
-        third_prog_start     = third_cycle_start + timedelta(days=14)
-        third_prog_end       = third_cycle_start + timedelta(days=28)
+        third_estrogen_end = third_cycle_start + timedelta(days=24)
+        third_prog_start = third_cycle_start + timedelta(days=13)
+        third_prog_end= third_cycle_start + timedelta(days=27)
 
         # === Blood work dates ===
         day_dif = cycle_length - 28
 
-        blood_work_date    = current_cycle_start + timedelta(days=18 + day_dif)
-        blood_work_end     = blood_work_date + timedelta(days=2)
+        blood_work_date = current_cycle_start + timedelta(days=18 + day_dif)
+        blood_work_end= blood_work_date + timedelta(days=2)
 
-        blood_work_date_2  = next_cycle_start + timedelta(days=18 + day_dif)
-        blood_work_end_2   = blood_work_date_2 + timedelta(days=2)
+        blood_work_date_2 = next_cycle_start + timedelta(days=18 + day_dif)
+        blood_work_end_2 = blood_work_date_2 + timedelta(days=2)
 
-        blood_work_date_3  = third_cycle_start + timedelta(days=18 + day_dif)
-        blood_work_end_3   = blood_work_date_3 + timedelta(days=2)
+        blood_work_date_3 = third_cycle_start + timedelta(days=18 + day_dif)
+        blood_work_end_3 = blood_work_date_3 + timedelta(days=2)
 
         # Format output
         fmt = "%B %d, %Y"
