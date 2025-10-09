@@ -22,8 +22,8 @@ def calculate():
             except ValueError:
                 return jsonify({'error': 'Cycle length must be a number.'}), 400
 
-            if cycle_length < 20 or cycle_length > 45:
-                return jsonify({'error': 'Cycle length must be between 20 and 45 days.'}), 400
+            if cycle_length>55:
+                return jsonify({'error': 'Invalid cycle length.'}), 400
 
         last_period_date = datetime.strptime(last_period, '%Y-%m-%d')
         today = datetime.today()
